@@ -6,4 +6,6 @@ A soil characterization demo with USDA texture, sieve gradation, Atterberg limit
 - [Offline demo](TerraWise-AI.html)
 - [Source, sample data and tests](TerraWise-AI-source.zip)
 
+Use **New blank specimen** for lab measurements. **Save specimen file** and **Open specimen file** keep inputs and confirmations in a local JSON file, with results recalculated on open.
+
 The optional model draft requires the local server and an installed Ollama model. USCS screening requires qualified review before engineering use.

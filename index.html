@@ -18,10 +18,14 @@ main{margin-left:225px}.topbar{height:65px;padding:0 32px;display:flex;align-ite
 @media(max-width:1050px){.rail{width:180px;padding-inline:11px}main{margin-left:180px}.workspace,.topbar{padding-inline:18px}.card{padding:13px}}
 @media(max-width:790px){.rail{position:sticky;top:0;width:auto;padding:9px 12px;gap:7px}.brand{font-size:1rem}.brand small,.rail-foot,.rail nav p{display:none}.mark{width:26px;height:26px;font-size:1rem;border-radius:7px}.rail nav{margin:0;display:flex;overflow:auto;gap:3px}.rail nav a{padding:5px 7px;font-size:.73rem;margin:0}.rail nav a span{display:none}main{margin:0}.topbar{height:43px}.module{scroll-margin-top:86px}}
 @media(max-width:600px){.workspace,.topbar{padding-inline:11px}.workspace{padding-top:12px}.topbar{font-size:.72rem}.hero{padding:22px 16px}.hero p{max-width:270px;font-size:.9rem}.contours{width:73%;opacity:.35}.sample-bar{display:grid;grid-template-columns:1.6fr 1fr;gap:8px}.sample-bar>div:first-child{min-width:0}.sample-status{grid-column:1/-1;margin:0;padding:0;text-align:left}.split{grid-template-columns:1fr}.kpis{gap:5px}.kpis article{grid-template-columns:1fr;padding:7px}.kpis strong{font-size:.99rem}.kpis article>span:not(.tile-icon){font-size:.57rem}.tile-icon{display:none}.kpis small{font-size:.64rem}.section-head .tag{font-size:.62rem;padding:4px 6px}.section-head h2{font-size:1.28rem}.section-head .eyebrow{font-size:.57rem}}
+.record-bar{margin:0 0 12px;padding:9px 0 11px;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+@media print{.record-bar{display:none}}
 @media print{.rail,.topbar,.hero,.actions,.sample-bar,.kpis,footer{display:none!important}main{margin:0}.workspace{padding:0}.module{break-inside:avoid;margin:10px 0}.card{box-shadow:none}}
 
 </style>
+
+
 </head>
 <body>
 <aside class="rail">
@@ -52,6 +56,14 @@ main{margin-left:225px}.topbar{height:65px;padding:0 32px;display:flex;align-ite
       <div><span class="eyebrow muted">ACTIVE DATASET</span><label class="sr" for="sample">Load example dataset</label><select id="sample"></select></div>
       <div><label class="eyebrow muted" for="specimen">SPECIMEN ID</label><input id="specimen" maxlength="100" value="TW-01"></div>
       <div class="sample-status" id="source">Synthetic reference data</div>
+    </section>
+    <section class="record-bar" aria-label="Specimen record">
+      <div class="actions">
+        <button id="new-record">New blank specimen</button>
+        <button id="save-record">Save specimen file ↓</button>
+        <label class="button upload">Open specimen file<input id="record-file" type="file" accept=".json,application/json"></label>
+      </div>
+      <p id="record-status" class="status" role="status">Save a local copy to reopen this specimen later.</p>
     </section>
     <div class="kpis" aria-label="Calculated overview">
       <article><span class="tile-icon">△</span><span>USDA TEXTURE</span><strong id="k-texture">—</strong><small>Fine-earth fraction</small></article>
@@ -283,7 +295,30 @@ main{margin-left:225px}.topbar{height:65px;padding:0 32px;display:flex;align-ite
     if (rows.some(row => row.length !== rows[0].length)) throw new Error('CSV rows must have the same number of columns as the header.');
     return rows;
   }
-  const methods = { texture, textureClass, gradation, atterberg, screen, parseCSV };
+  function parseRecord(text) {
+    let record;
+    try { record = JSON.parse(text); }
+    catch { throw new Error('Choose a valid TerraWise specimen JSON file.'); }
+    if (record?.format !== 'terrawise-specimen' || record.version !== 1) {
+      throw new Error('This file is not a supported TerraWise specimen record (version 1).');
+    }
+    const { specimen, origin, inputs } = record;
+    const inputString = value => typeof value === 'string' && value.length <= 40 &&
+      (value === '' || /^-?(?:\d+(?:\.\d+)?|\.\d+)(?:e[+-]?\d+)?$/i.test(value) && Number.isFinite(Number(value)));
+    const fields = (values, count) => Array.isArray(values) && values.length === count && values.every(inputString);
+    if (typeof specimen !== 'string' || specimen.length > 100 || /[\r\n]/.test(specimen) ||
+        !['sample','manual','imported','mixed'].includes(origin) || !inputs ||
+        !fields(inputs.texture, 3) || !Array.isArray(inputs.rows) || inputs.rows.length > 1000 ||
+        !inputs.rows.every(row => fields(row, 2)) || !fields([inputs.initial, inputs.ll, inputs.pl], 3) ||
+        !['passing','mass'].includes(inputs.basis) || !['mm','µm','in'].includes(inputs.unit) ||
+        !['measured','np','unknown'].includes(inputs.limits) ||
+        typeof inputs.mineral !== 'boolean' || typeof inputs.confirmed !== 'boolean') {
+      throw new Error('The specimen file has missing or malformed inputs.');
+    }
+    return { specimen, origin, inputs };
+  }
+
+  const methods = { texture, textureClass, gradation, atterberg, screen, parseCSV, parseRecord };
   if (typeof module !== 'undefined') module.exports = methods;
   else root.Soil = methods;
 })(globalThis);
@@ -300,7 +335,13 @@ const samples = [
   { name:'Clay-rich soil · reference', id:'TW-03', t:[20,30,50], ll:63, pl:26, rows:[[.075,83],[.15,85],[.425,88],[2,93],[4.75,100]] },
   { name:'Sand with fines · dual symbol', id:'TW-04', t:[94,4,2], limits:'np', rows:[[.075,8],[.106,10],[.15,15],[.25,28],[.425,43],[.85,62],[2,83],[4.75,96],[9.5,100]] }
 ];
-let imported = [], current, aiDraft = '', revision = 0, aiReady = false;
+let imported = [], current, aiDraft = '', revision = 0, aiReady = false, origin = 'sample';
+const originLabels = {
+  sample:'Synthetic reference data',
+  manual:'Manually entered specimen',
+  imported:'Imported measurements · review specimen identity',
+  mixed:'Includes synthetic data · verify before use'
+};
 const markup = (el, html) => { $(el).innerHTML = html; };
 function status(id, text, error = false) {
   $(id).textContent = text;
@@ -312,16 +353,18 @@ function readout(id, label, detail, error = false) {
 }
 function loadSample(index) {
   const s = samples[index];
+  origin = 'sample';
   imported = [];
   $('texture-picker').hidden = true;
   $('specimen').value = s.id;
-  $('source').textContent = 'Synthetic reference data';
+  $('source').textContent = originLabels[origin];
   ['sand','silt','clay'].forEach((id,i) => { $(id).value = s.t[i]; });
   for (const [id,value] of Object.entries({basis:s.basis ?? 'passing',unit:'mm',initial:s.initial ?? '',ll:s.ll ?? '',pl:s.pl ?? '',limits:s.limits ?? 'measured'})) $(id).value = value;
   $('mineral').checked = $('confirmed').checked = true;
   setRows(s.rows);
   status('sieve-status','');
   status('texture-status','');
+  status('record-status','');
   update();
 }
 function addRow([size='', value=''] = []) {
@@ -416,7 +459,9 @@ function update() {
   $('value-head').textContent = raw.basis === 'mass' ? 'Retained (g)' : 'Passing (%)';
   $('mass-label').hidden = raw.basis !== 'mass';
   $('limit-fields').hidden = raw.limits !== 'measured';
+  $('add-row').disabled = raw.rows.length >= 1000;
   const quality = [];
+  if (origin === 'mixed') quality.push([false,'This workspace includes or was started from synthetic sample data. Verify specimen identity and replace any example measurements before laboratory use.']);
   const run = (name, fn, pass) => {
     try {
       const result = fn();
@@ -469,7 +514,61 @@ function download(name,data,type) {
   setTimeout(()=>URL.revokeObjectURL(url),2000);
 }
 function editSource() {
-  $('source').textContent = 'Edited workspace · review specimen identity';
+  if (origin === 'sample') origin = 'mixed';
+  $('source').textContent = originLabels[origin];
+  $('sample').value = '';
+  status('record-status','');
+}
+function importedSource() {
+  if (origin !== 'sample' && origin !== 'mixed') origin = 'imported';
+  editSource();
+}
+function showRecord({ specimen, origin: recordOrigin, inputs }) {
+  origin = recordOrigin;
+  $('sample').value = '';
+  $('specimen').value = specimen;
+  $('source').textContent = originLabels[origin];
+  imported = [];
+  $('texture-picker').hidden = true;
+  ['sand','silt','clay'].forEach((id,i) => { $(id).value = inputs.texture[i]; });
+  for (const id of ['basis','unit','initial','ll','pl','limits']) $(id).value = inputs[id];
+  $('mineral').checked = inputs.mineral;
+  $('confirmed').checked = inputs.confirmed;
+  setRows(inputs.rows);
+  status('texture-status','');
+  status('sieve-status','');
+  update();
+}
+function newRecord() {
+  showRecord({ specimen:'',origin:'manual',inputs:{
+    texture:['','',''],rows:[['',''],['','']],basis:'passing',unit:'mm',initial:'',
+    ll:'',pl:'',limits:'unknown',mineral:false,confirmed:false
+  }});
+  status('record-status','Blank specimen ready.');
+  $('specimen').focus();
+}
+function saveRecord() {
+  const record = { format:'terrawise-specimen',version:1,specimen:$('specimen').value,origin,inputs:current.raw };
+  const data = JSON.stringify(record,null,2)+'\n';
+  try { Soil.parseRecord(data); }
+  catch (e) { return status('record-status',e.message,true); }
+  download('terra-wise-specimen.json',data,'application/json');
+  status('record-status','Specimen file prepared. It contains the current inputs and confirmations.');
+}
+async function openRecord(event) {
+  const file = event.target.files[0];
+  event.target.value = '';
+  if (!file) return;
+  const start = revision;
+  try {
+    if (file.size > 1024*1024) throw new Error('Choose a specimen file smaller than 1 MB.');
+    const record = Soil.parseRecord(await file.text());
+    if (start !== revision) return status('record-status','The workspace changed while reading the file. Open it again to replace the current inputs.',true);
+    showRecord(record);
+    status('record-status',`Opened ${file.name}. Calculations and quality checks were run again.`);
+  } catch (e) {
+    status('record-status',e.message,true);
+  }
 }
 async function upload(event, kind) {
   const file = event.target.files[0];
@@ -504,7 +603,7 @@ async function upload(event, kind) {
       $('mineral').checked = false;
       $('limits').value = 'unknown';
       setRows(rows);
-      $('source').textContent = 'Sieve CSV imported · confirm specimen identity';
+      importedSource();
       update();
     }
     status(`${kind}-status`,`${rows.length} row${rows.length===1?'':'s'} imported from ${file.name}.`);
@@ -518,7 +617,7 @@ function applyImported() {
   ['sand','silt','clay'].forEach((key,i)=>{ $(key).value = values[i]; });
   $('confirmed').checked = false;
   $('mineral').checked = false;
-  $('source').textContent = 'Texture CSV imported · verify sieve and limits match';
+  importedSource();
   update();
 }
 function resultRows() {
@@ -569,12 +668,16 @@ async function generate() {
     if (start === revision) $('interpret').disabled = !aiReady;
   }
 }
-markup('sample',samples.map((s,i)=>`<option value="${i}">${esc(s.name)}</option>`).join(''));
+markup('sample','<option value="" disabled>Load a synthetic example…</option>'+samples.map((s,i)=>`<option value="${i}">${esc(s.name)}</option>`).join(''));
 document.querySelector('.contours').innerHTML = Array.from({length:16},(_,i) => {
   const r=24+i*12;
   return `<path d="M${270-r} 105 C${249-r} ${85-r*.47} ${267-r*.31} ${95-r} 307 ${103-r*.83} S${335+r} ${108-r*.54} ${346+r} 96 S${404+r*.63} ${157+r*.73} ${329+r*.2} ${146+r*.79} S${274-r*.66} ${151+r*.55} ${270-r} 105Z" fill="none" stroke="#b3d6a6" stroke-width=".8"/>`;
 }).join('');
 $('sample').addEventListener('change',e=>loadSample(Number(e.target.value)));
+$('sample').value = '0';
+$('new-record').onclick = newRecord;
+$('save-record').onclick = saveRecord;
+$('record-file').addEventListener('change',openRecord);
 for (const id of ['sand','silt','clay','ll','pl','initial','specimen']) $(id).addEventListener('input',()=>{editSource();update();});
 for (const id of ['basis','unit','limits','mineral','confirmed']) $(id).addEventListener('change',()=>{
   if (id==='basis') $('confirmed').checked=false;
