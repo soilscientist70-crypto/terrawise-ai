@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="A searchable reference to analytical methods for soil, plant tissue and water.">
+<title>Soil Laboratory Manual | TerraWise</title>
+<link rel="stylesheet" href="styles.css">
+<script src="methods.js" defer></script>
+<script src="manual.js" defer></script>
+</head>
+<body>
+<header class="top"><a href="../">◈ TerraWise</a><a href="https://github.com/soilscientist70-crypto/terrawise-ai/tree/main/lab-manual">GitHub ↗</a></header>
+<main>
+  <section class="hero">
+    <p class="eyebrow">TERRAWISE FIELD GUIDES / 01</p>
+    <h1>Soil Laboratory<br>Manual</h1>
+    <p>Find and compare analytical methods for soil, plant tissue, and water. Build a test plan and go directly to the source procedure.</p>
+    <div class="hero-stats"><span><b id="total">40</b> methods</span><span><b>5</b> categories</span><span><b>01</b> initial edition</span></div>
+  </section>
+  <div class="layout">
+    <aside class="sidebar">
+      <section class="panel">
+        <p class="eyebrow">BROWSE</p>
+        <h2>Method library</h2>
+        <div id="categories" class="categories" role="group" aria-label="Method categories"></div>
+      </section>
+      <section class="panel">
+        <p class="eyebrow">STARTER PANELS</p>
+        <h2>Common workflows</h2>
+        <div id="presets" class="categories" role="group" aria-label="Starter panels"></div>
+      </section>
+      <section class="panel qa">
+        <p class="eyebrow">BEFORE TESTING</p>
+        <h2>Bench checklist</h2>
+        <ol>
+          <li>Confirm the matrix, analyte, reporting basis, and method edition.</li>
+          <li>Log sample ID, depth or tissue stage, storage, and collection time.</li>
+          <li>Use your controlled SOP for preservation, preparation, hazards, and waste handling.</li>
+          <li>Document calibration, blanks, controls, acceptance limits, and deviations.</li>
+          <li>Verify the method meets the client, accreditation, and regulatory scope.</li>
+        </ol>
+      </section>
+    </aside>
+    <section class="library" aria-labelledby="library-title">
+      <div class="library-top">
+        <div><p class="eyebrow">REFERENCE CATALOG</p><h2 id="library-title">Find a method</h2></div>
+        <button id="shortlist" aria-pressed="false">Shortlist <span id="saved-count">0</span></button>
+      </div>
+      <label class="sr" for="query">Search methods</label>
+      <input id="query" type="search" placeholder="Search Olsen, ASTM, nitrate, ICP-OES…" autocomplete="off">
+      <div class="tools">
+        <span id="count" role="status"></span>
+        <button id="export" disabled>Export shortlist CSV ↓</button>
+        <button id="print">Print / PDF</button>
+      </div>
+      <p class="guidance" id="preset-note" hidden></p>
+      <noscript>Enable JavaScript to browse the catalog. Authoritative sources are listed below.</noscript>
+      <div id="results" class="results"></div>
+    </section>
+  </div>
+  <section class="references" id="references">
+    <h2>Scope &amp; sources</h2>
+    <p>This first edition summarizes selected published procedures. It is a method-selection and training reference. Use the source edition and your lab’s controlled SOP for bench instructions, acceptance criteria, and safety. Regulatory acceptance and accreditation depend on the method, matrix, and jurisdiction.</p>
+    <div id="sources" class="sources"></div>
+    <noscript><a href="https://www.nrcs.usda.gov/resources/guides-and-instructions/kellogg-soil-survey-laboratory-guidance">USDA laboratory guidance</a> · <a href="https://www.epa.gov/cwa-methods">EPA water analytical methods</a></noscript>
+  </section>
+  <footer>TerraWise Laboratory Manual <span>Initial public edition · November 2026</span></footer>
+</main>
+</body>
+</html>
