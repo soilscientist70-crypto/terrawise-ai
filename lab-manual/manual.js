@@ -1,5 +1,6 @@
 'use strict';
 const presets = {
+  'FAO field screening': [methods.filter(row=>row[4]==='soilDoctors').map(row=>row[0]), 'These entries summarize preliminary FAO field and training techniques. Page numbers refer to the printed FAO manual. Confirm results with a suitable laboratory method when the decision requires quantitative or accredited results.'],
   'Building soil screen': [['engineering-moisture','sieve','washed-fines','atterberg','uscs'], 'For initial engineering soil characterization. Ask the project engineer to specify field sampling and select any strength or settlement tests required for design.'],
   'Calcareous soil fertility': [['soil-ph','soil-ece','olsen-p','dtpa','carbonates','soil-n'], 'Use method-specific local crop calibration. Select additional nutrient tests according to the crop and management question.'],
   'Soil biology baseline': [['respiration','biomass','enzyme','n-min'], 'Agree on collection and storage before sampling. Incubation results are comparable only when the conditions and reporting basis match.'],
