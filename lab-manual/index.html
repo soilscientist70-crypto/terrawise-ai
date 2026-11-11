@@ -3,14 +3,24 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="description" content="A searchable reference to analytical methods for soil, plant tissue and water.">
+<meta name="description" content="A searchable reference to analytical methods for soil, plant tissue, plant biochemistry, water, and air.">
 <title>Soil Laboratory Manual | TerraWise</title>
 <link rel="stylesheet" href="styles.css">
-<script src="methods.js?v=protocol-20261111" defer></script>
-<script src="manual.js?v=protocol-20261111" defer></script>
+<script src="methods.js?v=lab-tools-20261111" defer></script>
+<script src="manual.js?v=lab-tools-20261111" defer></script>
+<script src="calculators.js?v=lab-tools-20261111" defer></script>
 <style>
 .protocol{margin:10px 0;padding:10px 12px;background:#eef4ea;border-left:3px solid #739982;border-radius:5px}
 .protocol h4{margin:0 0 5px;font-size:.83rem}.protocol ol{margin:0;padding-left:18px;color:var(--muted);font-size:.82rem;line-height:1.45}.protocol li+li{margin-top:4px}
+.lab-jumps{display:flex;flex-wrap:wrap;gap:8px 16px;margin-top:14px}.lab-jumps a{color:white;font-size:.84rem;font-weight:700}
+.calculator-grid,.safety-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.calculator{margin:0;background:#f8faf5}.calculator h3,.safety-grid h3{margin:0 0 6px;font-size:1rem}
+.calculator-fields{display:grid;gap:7px}.calculator-fields label{font-size:.81rem;font-weight:650}
+.calculator-fields input{display:block;width:100%;padding:6px;margin-top:2px;border:1px solid #afc2b4;border-radius:5px;background:white}
+.calculator-actions{display:flex;gap:6px;flex-wrap:wrap}.calculator .formula{font-size:.76rem}.calculator .calculator-result{min-height:1.3em;font-weight:750;color:var(--ink)}
+.safety-grid article{border:1px solid var(--line);border-radius:8px;padding:12px}.safety-grid p{margin:0}
+@media(max-width:620px){.calculator-grid,.safety-grid{grid-template-columns:1fr}}
+@media print{.lab-jumps,.calculator-actions{display:none}}
 </style>
 </head>
 <body>
@@ -20,8 +30,9 @@
     <p class="eyebrow">TERRAWISE FIELD GUIDES / 01</p>
     <p class="eyebrow" style="margin-top:6px">Project concept by Dr. Muhammad Farooq Qayyum</p>
     <h1>Soil Laboratory<br>Manual</h1>
-    <p>Find and compare analytical methods for soil, plant tissue, and water. Build a test plan and go directly to the source procedure.</p>
-    <div class="hero-stats"><span><b id="total">56</b> methods</span><span><b>5</b> categories</span><span><b>01</b> field update</span></div>
+    <p>Find and compare analytical methods for soil, plant tissue, plant biochemistry, water, and air. Build a test plan, check laboratory safety, and calculate solution or sample concentrations.</p>
+    <div class="hero-stats"><span><b id="total">64</b> methods</span><span><b>7</b> categories</span></div>
+    <div class="lab-jumps"><a href="#library-title">Browse methods ↓</a><a href="#calculators">Calculators ↓</a><a href="#lab-safety">Laboratory safety ↓</a></div>
   </section>
   <div class="layout">
     <aside class="sidebar">
@@ -64,6 +75,23 @@
       <div id="results" class="results"></div>
     </section>
   </div>
+  <section class="references" id="calculators" aria-labelledby="calculator-title">
+    <h2 id="calculator-title">Laboratory calculators</h2>
+    <p>Enter your values or load a worked example. The formulas show the concentration, volume, mass, or activity basis used in each result.</p>
+    <div id="calculator-grid" class="calculator-grid"></div>
+    <noscript>Enable JavaScript to use the calculators.</noscript>
+  </section>
+  <section class="references" id="lab-safety" aria-labelledby="safety-title">
+    <h2 id="safety-title">Laboratory safety protocol</h2>
+    <p>Use this checklist with your laboratory’s approved procedures, safety data sheets (SDS), and local emergency plan.</p>
+    <div class="safety-grid">
+      <article><h3>Before starting</h3><p>Review the procedure and SDS. Identify exposure routes, incompatible reagents, waste streams, and emergency contacts. Check that eyewash and safety shower access is clear. Verify that required ventilation and protective equipment are ready.</p></article>
+      <article><h3>During the work</h3><p>Use splash protection and gloves compatible with the reagent. Use a working chemical fume hood for operations that require vapor or aerosol control. Label preparations with their identity, concentration, date, and relevant hazards. Secure gas cylinders and use the regulator specified for the gas.</p></article>
+      <article><h3>Spill or exposure</h3><p>Stop work and alert nearby staff. For a hazardous spill or gas release, leave the area and call the site emergency contact. For chemical splash to eyes or skin, start flushing immediately at the eyewash or safety shower and seek medical assistance under the emergency plan.</p></article>
+      <article><h3>After the work</h3><p>Place chemical waste in compatible, labeled containers and segregate incompatible streams. Follow the site waste procedure. Decontaminate the bench and equipment, wash hands, and record incidents and corrective actions.</p></article>
+    </div>
+    <p><a href="https://www.osha.gov/laws-regs/regulations/standardnumber/1910/1910.1450AppA">OSHA chemical hygiene guidance</a> · <a href="https://www.osha.gov/sites/default/files/publications/OSHA3404LABORATORY-SAFETY-GUIDANCE.pdf">OSHA laboratory safety guide</a></p>
+  </section>
   <section class="references" id="references">
     <h2>Scope &amp; sources</h2>
     <p>This catalog summarizes selected published procedures. The FAO field screening panel draws on FAO’s 2020 Soil Testing Methods guide. Its entries include original quick protocol summaries and printed page references. It is a method-selection and training reference. Use the source edition and your lab’s controlled SOP for bench instructions, acceptance criteria, and safety. Regulatory acceptance and accreditation depend on the method, matrix, and jurisdiction.</p>
@@ -75,7 +103,7 @@
     <p>Suggest an analytical method, share a teaching workflow, or discuss an idea for TerraWise. Contributions are public and require a GitHub account. Method suggestions are reviewed before they enter the catalog.</p>
     <div class="sources"><a href="https://github.com/soilscientist70-crypto/terrawise-ai/issues/new?title=Method%20suggestion%3A%20&amp;body=Method%20name%20and%20sample%20matrix%3A%0A%0AAuthoritative%20procedure%20or%20DOI%3A%0A%0AWhat%20this%20method%20adds%20to%20the%20manual%3A%0A%0AReporting%20units%20and%20any%20limitations%3A%0A">Suggest a method ↗</a><a href="https://github.com/soilscientist70-crypto/terrawise-ai/issues/1">Join the discussion ↗</a></div>
   </section>
-  <footer>TerraWise Laboratory Manual <span>Field methods update · November 2026</span></footer>
+  <footer>TerraWise Laboratory Manual <span>Laboratory methods and calculators · November 2026</span></footer>
 </main>
 </body>
 </html>
