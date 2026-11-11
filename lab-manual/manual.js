@@ -1,5 +1,6 @@
 'use strict';
 const presets = {
+  'Pesticide residues': [["pesticides-organochlorine","pesticides-organophosphorus","pesticides-acid-herbicides","pesticides-soil-multiresidue","pesticides-drinking-gcms","pesticides-glyphosate","pesticides-paraquat-diquat","pesticides-filtered-water","pesticides-wastewater"], "Choose by sample type, target compound and required reporting limit before collection. Check containers, preservation and holding times in the cited method. Report water in µg/L and state the mass basis for soil results, typically µg/kg dry soil. For compliance work, verify acceptance with the applicable authority."],
   'Plant antioxidant enzymes': [['plant-cat','plant-apx','plant-sod','plant-protein'], 'Use matched tissue, extraction conditions and normalization across treatments. Check the definition of an activity unit for each assay.'],
   'Ambient air monitoring': [['air-pm25','air-no2','air-vocs'], 'Specify pollutants, averaging periods and the intended monitoring program before selecting the sampler or analyzer.'],
   'FAO field screening': [methods.filter(row=>row[4]==='soilDoctors').map(row=>row[0]), 'These entries summarize preliminary FAO field and training techniques. Page numbers refer to the printed FAO manual. Confirm results with a suitable laboratory method when the decision requires quantitative or accredited results.'],
