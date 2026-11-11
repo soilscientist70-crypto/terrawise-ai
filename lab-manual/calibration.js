@@ -1,3 +1,4 @@
+(() => {
 'use strict';
 const root = document.getElementById('calibration-curve');
 const get = id => document.getElementById(`curve-${id}`);
@@ -207,3 +208,4 @@ get('download').addEventListener('click',exportCSV);
 for(let i=0;i<4;i++) addRow('standards');
 for(let i=0;i<3;i++) addRow('samples');
 render();
+})();
