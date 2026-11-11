@@ -34,10 +34,12 @@ function getVisible() {
 }
 function card(e) {
   const [publisher,url,access] = sources[e.source];
+  const steps = fieldProtocols[e.id];
+  const protocol = steps ? `<section class="protocol" aria-label="Protocol at a glance"><h4>Protocol at a glance</h4><ol>${steps.map(step=>`<li>${escape(step)}</li>`).join('')}</ol></section>` : '';
   const rows = [['Specimen',e.sample],['Equipment',e.equipment],['Report as',e.output],['Quality checks',e.qa],['Limits',e.limits]];
   return `<article class="method" id="${e.id}">
     <div class="method-head"><span class="badge">${escape(e.category)}</span><button class="save" data-save="${e.id}" aria-pressed="${saved.has(e.id)}" aria-label="Shortlist ${escape(e.title)}">${saved.has(e.id)?'✓ Saved':'+ Save'}</button></div>
-    <h3>${escape(e.title)}</h3><p class="method-id">${escape(e.method)}</p><p>${escape(e.principle)}</p>
+    <h3>${escape(e.title)}</h3><p class="method-id">${escape(e.method)}</p><p>${escape(e.principle)}</p>${protocol}
     <details ${open.has(e.id)?'open':''}><summary>Specimen, reporting &amp; quality checks</summary>
     <dl>${rows.map(([label,value])=>`<dt>${escape(label)}</dt><dd>${escape(value)}</dd>`).join('')}</dl></details>
     <a class="citation" href="${escape(url)}" target="_blank" rel="noopener">${escape(publisher)} ↗</a>

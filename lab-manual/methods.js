@@ -604,3 +604,87 @@ const methods = [
   ["visual-mottles","Soil physical","Soil mottles and drainage observations","FAO Soil Doctors (2020) · Annex I, pp. 76–77","soilDoctors","Exposed soil profile or representative spade sample","Spade, color reference and field notes","Color, abundance and depth of mottles","Describe mottling and its distribution as clues to soil aeration and wetness history.","Record profile depth, moisture and background color. Compare with landscape position and field history.","Mottles require interpretation in context. They do not measure the current groundwater depth."],
   ["rooting-depth","Soil physical","Potential rooting depth and restrictive layers","FAO Soil Doctors (2020) · Annex I, pp. 80–81","soilDoctors","Representative exposed soil profile","Spade or profile observation tools and measuring scale","Depth to the observed restrictive layer, in cm","Record evidence of barriers that may limit the depth roots can explore.","Describe the suspected barrier, observed roots and sampling location.","Potential rooting depth can differ from actual crop rooting and varies within a field."]
 ];
+
+// Original workflow summaries keyed to the FAO field-screening entries.
+const fieldProtocols = {
+  "field-texture": [
+    "Moisten a small soil portion until it is workable, then try to form a ball.",
+    "Press it between thumb and forefinger to make a ribbon. Note the length before it breaks and whether the soil feels gritty, smooth, or sticky.",
+    "Use the FAO texture key to record an estimated class. Compare uncertain samples with a known reference or laboratory particle-size results."
+  ],
+  "excavation-density": [
+    "Level the sampling surface, excavate to the selected depth, and retain all the removed soil.",
+    "Fit an impermeable liner to the cavity. Measure the volume of water needed to fill it to the original surface.",
+    "Determine the dry mass of the excavated soil using a suitable drying regime. Divide it by the measured cavity volume."
+  ],
+  "clod-density": [
+    "Collect a coherent clod without breaking it. Dry it using the appropriate regime and record its dry mass.",
+    "Coat it with wax, record the coated mass, and measure the volume of water displaced by the coated clod.",
+    "Subtract the wax volume from the displacement volume, then divide dry soil mass by the corrected clod volume."
+  ],
+  "volumetric-moisture": [
+    "Measure gravimetric water content on a dry-mass basis and obtain dry bulk density for the same soil layer.",
+    "Multiply the gravimetric fraction (g/g) by dry bulk density and divide by water density. Use matching density units.",
+    "Report the resulting volume fraction in m³/m³, or multiply it by 100 for percent by volume."
+  ],
+  "field-moisture-feel": [
+    "Collect fresh samples at representative locations and several root-zone depths.",
+    "Squeeze a sample into a ball, then try to form a ribbon. Note cohesion, loose grains, visible moisture, and staining on the hand.",
+    "Compare observations with the FAO guide for that soil texture. Record the estimated moisture band and sampling depth."
+  ],
+  "soil-tension": [
+    "Prepare and check the water-filled tensiometer according to its operating instructions.",
+    "Install it at the target root-zone depth with good contact between the ceramic cup and the surrounding soil.",
+    "Record stabilized suction in kPa and note the depth and time. Use a soil-specific retention curve if water content is needed."
+  ],
+  "field-ph-color": [
+    "Prepare the soil sample for the chosen indicator or strip. For the strip variant, allow suspended particles to settle before reading.",
+    "Apply the indicator or expose the strip to the prepared sample, then compare its color with the matching chart.",
+    "Report the estimated pH band and the test variant. Confirm doubtful readings with a calibrated pH meter."
+  ],
+  "soil-ec-11": [
+    "Check the conductivity meter with a reference solution. Combine equal numerical amounts of soil in grams and water in millilitres, such as 10 g and 10 mL.",
+    "Mix the preparation and allow the soil to settle. The FAO guide calls for an EC reading at about 30 minutes.",
+    "Report EC as a 1:1 result with the unit and temperature basis. Interpret it using guidance for that extraction ratio."
+  ],
+  "visual-salinity": [
+    "Walk affected and nearby apparently healthy areas. Note surface crystals or crusting and patchy crop growth.",
+    "Map where the symptoms occur and record drainage or irrigation patterns that may explain them.",
+    "Sample representative affected and reference areas. Use an appropriate EC test to check whether the visual symptoms indicate salinity."
+  ],
+  "earthworms": [
+    "Mark a known area and record the depth to be sampled. Check surface litter separately if present.",
+    "Excavate the soil and hand-sort the sample over a tray or sheet. Tally earthworms and note any additional extraction technique used.",
+    "Divide the count by sampled area and report worms per m² with depth, soil moisture, and sampling date."
+  ],
+  "litter-decomposition": [
+    "Label and weigh comparable tea bags before placing them at a consistent depth in replicated plots.",
+    "Retrieve them after a defined exposure. The FAO example uses about three months. Remove adhering soil without losing litter.",
+    "Dry and reweigh consistently, then report percentage mass loss for the exposure period. Flag damaged bags."
+  ],
+  "active-carbon": [
+    "Prepare comparable soil aliquots and a reagent blank. React the soil with potassium permanganate under a fixed preparation and timing scheme.",
+    "Let particles settle and compare the remaining purple color. Use calibrated colorimetry and the specified procedure when quantification is required.",
+    "Record visual comparisons as qualitative. For a quantitative result, state the method and dry-mass basis."
+  ],
+  "soda-lime-respiration": [
+    "Set up replicated soil chambers and a control isolated from the soil. Precondition and weigh the absorber under the controlled procedure.",
+    "Expose the absorber in the sealed chambers and control for a recorded period. The FAO example uses about 24 hours.",
+    "Recover, dry, and reweigh the absorber. Apply the control and method corrections, then normalize by chamber area and elapsed time."
+  ],
+  "visual-structure": [
+    "Take a representative spade sample and record the depth and moisture condition.",
+    "Break it apart using the texture-appropriate handling described in the source. Observe aggregate size and firmness and inspect a fresh face for visible pores.",
+    "Record structure and porosity observations together, and compare samples taken under similar moisture conditions."
+  ],
+  "visual-mottles": [
+    "Expose a fresh soil face at the target depth and note its background color.",
+    "Record the color and relative abundance of mottles at each observed depth.",
+    "Compare with the FAO visual guide and site drainage history. Record the observation separately from any drainage interpretation."
+  ],
+  "rooting-depth": [
+    "Expose a representative soil profile and follow roots and old root channels downwards.",
+    "Look for a restrictive layer and changes such as sideways roots, a firm pan, abrupt texture change, or signs of prolonged wetness.",
+    "Measure the depth to the suspected restriction. Record the evidence and distinguish potential depth from observed rooting depth."
+  ]
+};
