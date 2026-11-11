@@ -9,6 +9,7 @@
 <script src="methods.js?v=lab-tools-20261111" defer></script>
 <script src="manual.js?v=lab-tools-20261111" defer></script>
 <script src="calculators.js?v=lab-tools-20261111" defer></script>
+<script src="calibration.js?v=1" defer></script>
 <style>
 .protocol{margin:10px 0;padding:10px 12px;background:#eef4ea;border-left:3px solid #739982;border-radius:5px}
 .protocol h4{margin:0 0 5px;font-size:.83rem}.protocol ol{margin:0;padding-left:18px;color:var(--muted);font-size:.82rem;line-height:1.45}.protocol li+li{margin-top:4px}
@@ -21,6 +22,12 @@
 .safety-grid article{border:1px solid var(--line);border-radius:8px;padding:12px}.safety-grid p{margin:0}
 @media(max-width:620px){.calculator-grid,.safety-grid{grid-template-columns:1fr}}
 @media print{.lab-jumps,.calculator-actions{display:none}}
+.curve-meta,.curve-layout{display:grid;gap:12px}.curve-meta{grid-template-columns:repeat(3,minmax(0,1fr))}.curve-layout{grid-template-columns:minmax(215px,.8fr) minmax(0,1.5fr);align-items:start;margin-top:10px}
+.curve-meta label{font-size:.82rem;font-weight:700}.curve-meta input,.curve-table input{width:100%;padding:7px 8px;border:1px solid #b4c7b9;border-radius:5px;background:white;color:var(--ink)}.curve-meta input{display:block;margin-top:3px}
+.curve-scroll{overflow:auto;margin:7px 0}.curve-table{width:100%;border-collapse:collapse;font-size:.84rem}.curve-table th,.curve-table td{text-align:left;vertical-align:middle;padding:4px;border-bottom:1px solid var(--line)}.curve-table th{font-size:.76rem}.curve-table input{min-width:62px}.curve-table button{padding:2px 8px}.curve-sample-table{min-width:690px}.curve-sample-table td:nth-child(6){min-width:114px}.curve-table .curve-flag{color:#87431c}
+.curve-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:9px}.curve-fit{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0}.curve-fit div{background:#edf4e9;padding:6px 10px;border-radius:6px}.curve-fit dt{font-size:.72rem;color:var(--muted)}.curve-fit dd{margin:1px 0 0;font-size:.85rem;font-weight:750}.curve-figure{margin:8px 0;background:#fbfdf9;border:1px solid var(--line);border-radius:8px}.curve-figure canvas{display:block;width:100%;height:auto}.curve-figure figcaption{padding:0 10px 9px;color:var(--muted);font-size:.77rem}
+@media(max-width:720px){.curve-meta,.curve-layout{grid-template-columns:1fr}}
+@media print{.curve-actions,#curve-add-standards,.curve-table button{display:none}}
 </style>
 </head>
 <body>
@@ -32,7 +39,7 @@
     <h1>Soil Laboratory<br>Manual</h1>
     <p>Find and compare analytical methods for soil, plant tissue, plant biochemistry, water, and air. Build a test plan, check laboratory safety, and calculate solution or sample concentrations.</p>
     <div class="hero-stats"><span><b id="total">64</b> methods</span><span><b>7</b> categories</span></div>
-    <div class="lab-jumps"><a href="#library-title">Browse methods ↓</a><a href="#calculators">Calculators ↓</a><a href="#lab-safety">Laboratory safety ↓</a></div>
+    <div class="lab-jumps"><a href="#library-title">Browse methods ↓</a><a href="#calculators">Calculators ↓</a><a href="#calibration-curve">Calibration curve ↓</a><a href="#lab-safety">Laboratory safety ↓</a></div>
   </section>
   <div class="layout">
     <aside class="sidebar">
@@ -80,6 +87,49 @@
     <p>Enter your values or load a worked example. The formulas show the concentration, volume, mass, or activity basis used in each result.</p>
     <div id="calculator-grid" class="calculator-grid"></div>
     <noscript>Enable JavaScript to use the calculators.</noscript>
+  </section>
+  <section class="references" id="calibration-curve" aria-labelledby="curve-title">
+    <h2 id="curve-title">Calibration curve &amp; batch concentrations</h2>
+    <p>Enter at least three distinct standard concentrations and their measured readings. Enter replicate readings on separate rows. The calculator fits an ordinary least-squares line with an intercept, then uses the line to back-calculate each sample.</p>
+    <div class="curve-meta">
+      <label>Method or analyte<input id="curve-method" type="text" maxlength="80" placeholder="e.g., Olsen phosphorus colorimetry"></label>
+      <label>Concentration unit<input id="curve-unit" type="text" maxlength="30" placeholder="e.g., mg/L as P"></label>
+      <label>Reading label<input id="curve-response" type="text" maxlength="50" placeholder="e.g., Absorbance at 880 nm"></label>
+    </div>
+    <div class="curve-actions"><button id="curve-example" type="button">Load worked example</button></div>
+    <div class="curve-layout">
+      <div>
+        <h3>Standards</h3>
+        <div class="curve-scroll"><table class="curve-table">
+          <thead><tr><th scope="col">Concentration</th><th scope="col">Reading</th><th scope="col"><span class="sr">Remove</span></th></tr></thead>
+          <tbody id="curve-standards"></tbody>
+        </table></div>
+        <button id="curve-add-standards" type="button">+ Add standard</button>
+      </div>
+      <div>
+        <p id="curve-status" role="status"></p>
+        <div id="curve-model" hidden>
+          <dl class="curve-fit">
+            <div><dt>Equation</dt><dd id="curve-equation"></dd></div>
+            <div><dt>Slope</dt><dd id="curve-slope"></dd></div>
+            <div><dt>Intercept</dt><dd id="curve-intercept"></dd></div>
+            <div><dt>R²</dt><dd id="curve-r2"></dd></div>
+          </dl>
+          <figure class="curve-figure">
+            <canvas id="curve-chart" width="660" height="330" role="img" aria-label="Scatter plot of standard concentrations and readings with the fitted line"></canvas>
+            <figcaption>Dots show measured standards. The line shows the fitted response over the standards’ concentration range.</figcaption>
+          </figure>
+        </div>
+      </div>
+    </div>
+    <h3>Sample readings</h3>
+    <p id="curve-sample-basis"></p>
+    <div class="curve-scroll"><table class="curve-table curve-sample-table">
+      <thead><tr><th scope="col">Sample ID</th><th scope="col">Reading</th><th scope="col">Dilution factor</th><th scope="col">Concentration in measured solution</th><th scope="col">Final concentration</th><th scope="col">Status</th><th scope="col"><span class="sr">Remove</span></th></tr></thead>
+      <tbody id="curve-samples"></tbody>
+    </table></div>
+    <div class="curve-actions"><button id="curve-add-samples" type="button">+ Add sample</button><button id="curve-download" type="button" disabled>Download results CSV ↓</button></div>
+    <p>Use the cumulative dilution factor after sample preparation. Review any out-of-range or negative estimate before reporting. Apply your method’s calibration acceptance and reporting rules. For solids, use the solid-sample calculator to convert a solution concentration to mg/kg using extract volume and dry mass. <a href="https://itl.nist.gov/div898/handbook/mpc/section3/mpc366.htm">NIST reference for inverse calibration ↗</a></p>
   </section>
   <section class="references" id="lab-safety" aria-labelledby="safety-title">
     <h2 id="safety-title">Laboratory safety protocol</h2>
